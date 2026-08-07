@@ -1,6 +1,8 @@
 # Rust workspace
 
-Axum HTTP app split into a library crate (`api`) and a binary crate (`server`).
+Axum HTTP app organized as three crates: `api` owns the HTTP surface,
+`database` owns Postgres connections and embedded migrations, and `server` is
+the executable entrypoint.
 
 ## Running and testing
 
@@ -53,7 +55,8 @@ That rewrites the `expect![[...]]` strings in source to match the actual output.
 
 Owns the Postgres connection pool and embedded SQL migrations. `database::setup`
 connects and runs all pending migrations, while `database::connect` and
-`database::migrate` can be used separately.
+`database::migrate` can be used separately. The server calls `database::setup`
+at startup, so there is no separate migration command.
 
 The server passes the connection URL to `database::setup`. It reads
 `DATABASE_URL` when set and otherwise uses the Postgres instance in the
@@ -71,11 +74,16 @@ cd rust
 cargo test -p database
 ```
 
+The isolated database test helpers share one fixed disposable database name.
+Tests that use those helpers must not run concurrently.
+
 ## `server`
 
-Process entrypoint: initializes the Postgres pool and migrations, builds the API
-state, binds `127.0.0.1:3000`, and serves `api::router(state)` via
-`server::run(listener, state)`. Route logic lives in `api`, not here.
+Process entrypoint: reads the optional `DATABASE_URL` (falling back to the
+repository's compose database), initializes the Postgres pool and migrations,
+builds the API state, binds `127.0.0.1:3000`, and serves `api::router(state)`
+via `server::run(listener, state)`. The bind address and port are not
+configurable. Route logic lives in `api`, not here.
 
 A TCP smoke test binds an ephemeral port, spawns `server::run`, and HTTP GETs
 `/`, `/health`, and `/live`. Start Postgres before running or testing the
