@@ -1,0 +1,1 @@
+-- Initial database bootstrap. Add domain schema in subsequent migrations.

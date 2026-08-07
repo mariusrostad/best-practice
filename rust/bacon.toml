@@ -1,0 +1,35 @@
+#:schema https://dystroy.org/bacon/.bacon.schema.json
+
+default_job = "server"
+env.CARGO_TERM_COLOR = "always"
+
+default_watch = false
+watch = [
+    "Cargo.toml",
+    "Cargo.lock",
+    "crates/**",
+]
+ignore = [
+    ".git/**",
+    "target/**",
+    "vendor/**",
+]
+
+[jobs.server]
+command = ["cargo", "run", "-p", "server"]
+need_stdout = true
+allow_warnings = true
+background = false
+on_change_strategy = "kill_then_restart"
+scroll_anchor = "auto"
+
+[jobs.nextest]
+command = [
+    "cargo", "nextest", "run",
+    "--hide-progress-bar", "--failure-output", "final",
+]
+need_stdout = true
+analyzer = "nextest"
+
+[keybindings]
+t = "job:nextest"
