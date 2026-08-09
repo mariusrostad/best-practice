@@ -12,7 +12,7 @@ async fn app() -> Router {
 }
 
 #[tokio::test]
-async fn root_returns_hello_world() {
+async fn root_renders_index_template() {
     let response = app()
         .await
         .oneshot(Request::new(Body::empty()))
@@ -24,8 +24,10 @@ async fn root_returns_hello_world() {
     let body = to_bytes(response.into_body(), usize::MAX)
         .await
         .expect("response body should be readable");
+    let body = std::str::from_utf8(&body).expect("body should be utf-8");
 
-    assert_eq!(&body[..], b"<h1>Hello, World!</h1>");
+    expect!["<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"utf-8\">\n    <title>Home</title>\n</head>\n<body>\n    \n</body>\n</html>"]
+        .assert_eq(body);
 }
 
 #[tokio::test]

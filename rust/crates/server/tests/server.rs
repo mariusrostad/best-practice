@@ -33,10 +33,8 @@ async fn server_serves_root_health_and_live() {
     let status = root.status();
     let body = root.text().await.expect("root body should be readable");
     let actual = format!("{status}\n{body}");
-    expect![[r#"
-        200 OK
-        <h1>Hello, World!</h1>"#]]
-    .assert_eq(&actual);
+    expect!["200 OK\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"utf-8\">\n    <title>Home</title>\n</head>\n<body>\n    \n</body>\n</html>"]
+        .assert_eq(&actual);
 
     let health = client
         .get(format!("{base}/health"))

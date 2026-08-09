@@ -6,9 +6,10 @@ edition.workspace = true
 [dependencies]
 axum = { workspace = true }
 sqlx = { workspace = true }
+template = { workspace = true }
 
 [dev-dependencies]
-database = { path = "../database" }
+database = { workspace = true }
 expect-test = { workspace = true }
 tokio = { workspace = true }
 tower = { workspace = true }

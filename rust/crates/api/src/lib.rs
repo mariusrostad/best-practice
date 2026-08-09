@@ -1,5 +1,8 @@
-use axum::{Router, extract::State, http::StatusCode, response::Html, routing::get};
+use axum::{Router, extract::State, http::StatusCode, routing::get};
+use index::index_handler;
 use sqlx::PgPool;
+
+mod index;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -12,10 +15,6 @@ pub fn router(state: AppState) -> Router {
         .route("/health", get(health_handler))
         .route("/live", get(live_handler))
         .with_state(state)
-}
-
-pub async fn index_handler() -> Html<&'static str> {
-    Html("<h1>Hello, World!</h1>")
 }
 
 pub async fn health_handler() -> (StatusCode, &'static str) {
@@ -33,12 +32,6 @@ pub async fn live_handler(State(state): State<AppState>) -> (StatusCode, &'stati
 mod tests {
     use super::*;
     use expect_test::expect;
-
-    #[tokio::test]
-    async fn index_handler_returns_hello_world_html() {
-        let Html(html) = index_handler().await;
-        assert_eq!(html, "<h1>Hello, World!</h1>");
-    }
 
     #[tokio::test]
     async fn health_handler_returns_ok() {

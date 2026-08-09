@@ -1,8 +1,8 @@
 # Rust workspace
 
-Axum HTTP app organized as three crates: `api` owns the HTTP surface,
-`database` owns Postgres connections and embedded migrations, and `server` is
-the executable entrypoint.
+Axum HTTP app organized as four crates: `api` owns the HTTP surface,
+`database` owns Postgres connections and embedded migrations, `template` owns
+the Askama HTML templates, and `server` is the executable entrypoint.
 
 ## Running and testing
 
@@ -32,6 +32,7 @@ Owns the HTTP application surface: routes, handlers, and the shared `AppState`.
 - Reused by the server binary and by tests
 - Supports black-box HTTP API tests via `api::router(state)` + `tower::ServiceExt::oneshot` without binding a TCP port
 - Handlers can also be called directly for unit-style checks
+- `/` renders `template::IndexTemplate` with the page title `Home`
 - `/health` checks that the HTTP process is responsive
 - `/live` executes `SELECT 1` through the pool, returning `503 Service Unavailable`
   when Postgres cannot be reached
@@ -76,6 +77,17 @@ cargo test -p database
 
 The isolated database test helpers share one fixed disposable database name.
 Tests that use those helpers must not run concurrently.
+
+## `template`
+
+Owns the Askama templates used to render HTML responses. `Base` provides the
+shared document shell from `templates/base.html` and accepts the page title.
+`IndexTemplate` extends `Base` via `templates/index.html` and fills the content
+block.
+
+```bash
+cargo test -p template
+```
 
 ## `server`
 

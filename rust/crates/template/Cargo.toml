@@ -4,8 +4,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-askama = "0.16.0"
-insta = "1.48.0"
+askama = { workspace = true }
 
 [dev-dependencies]
 expect-test = { workspace = true }
